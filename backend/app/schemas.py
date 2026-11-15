@@ -12,3 +12,10 @@ class ActivationOut(BaseModel):
     device_id: str
     activated_at: datetime
     is_new: bool
+
+class SummaryOut(BaseModel):
+    today: int
+    week: int
+    month: int
+    year: int
+    timezone: str
