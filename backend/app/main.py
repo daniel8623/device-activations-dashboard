@@ -1,13 +1,14 @@
 from datetime import datetime, timezone
+from typing import Literal
 
-from fastapi import Depends, FastAPI, Response, status
+from fastapi import Depends, FastAPI, Query, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
 from .models import Device, utc_now
-from .schemas import ActivationIn, ActivationOut, SummaryOut
-from .stats import LOCAL_TZ, compute_summary
+from .schemas import ActivationIn, ActivationOut, SummaryOut, TimeseriesOut
+from .stats import LOCAL_TZ, compute_summary, compute_timeseries
 
 Base.metadata.create_all(bind=engine)
 
@@ -47,3 +48,12 @@ def register_activation(payload: ActivationIn, response: Response, db: Session =
 def get_summary(db: Session = Depends(get_db)):
     counts = compute_summary(db, now=datetime.now(LOCAL_TZ))
     return SummaryOut(**counts, timezone=str(LOCAL_TZ))
+
+@app.get("/api/stats/timeseries", response_model=TimeseriesOut)
+def get_timeseries(
+    granularity: Literal["day", "week", "month"] = "day",
+    buckets: int = Query(default=30, ge=1, le=366),
+    db: Session = Depends(get_db),
+):
+    points = compute_timeseries(db, now=datetime.now(LOCAL_TZ), granularity=granularity, buckets=buckets)
+    return TimeseriesOut(granularity=granularity, timezone=str(LOCAL_TZ), points=points)

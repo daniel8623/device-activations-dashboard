@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 
@@ -19,3 +19,13 @@ class SummaryOut(BaseModel):
     month: int
     year: int
     timezone: str
+
+class TimeseriesPoint(BaseModel):
+    bucket_start: date
+    count: int
+
+
+class TimeseriesOut(BaseModel):
+    granularity: str
+    timezone: str
+    points: list[TimeseriesPoint]
