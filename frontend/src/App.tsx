@@ -1,4 +1,5 @@
 import type { Summary } from "./api";
+import { ActivationsChart } from "./components/ActivationsChart";
 import { KpiCard } from "./components/KpiCard";
 import { useFetch } from "./hooks/useFetch";
 import "./App.css";
@@ -23,6 +24,8 @@ function App() {
         <KpiCard label="This month" value={summary.data?.month} />
         <KpiCard label="This year" value={summary.data?.year} />
       </section>
+
+      <ActivationsChart />
     </main>
   );
 }
