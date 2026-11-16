@@ -13,12 +13,14 @@ class ActivationOut(BaseModel):
     activated_at: datetime
     is_new: bool
 
+
 class SummaryOut(BaseModel):
     today: int
     week: int
     month: int
     year: int
     timezone: str
+
 
 class TimeseriesPoint(BaseModel):
     bucket_start: date

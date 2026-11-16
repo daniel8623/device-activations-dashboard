@@ -38,7 +38,7 @@ def test_activation_time_is_stored_in_utc(client):
 
 
 def test_timeseries_rejects_unknown_granularity(client):
-    response = client.get("/api/stats/timeseries", params={"granularity": "year"})
+    response = client.get("/api/stats/timeseries", params={"granularity": "decade"})
 
     assert response.status_code == 422
 

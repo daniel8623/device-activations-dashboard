@@ -61,3 +61,13 @@ def test_activation_at_midnight_is_counted_once(db_session):
     points = compute_timeseries(db_session, now=NOW, granularity="day", buckets=3)
 
     assert [p["count"] for p in points] == [0, 1, 0]
+
+
+def test_yearly_buckets(db_session):
+    add_device(db_session, "last-year", datetime(2025, 6, 1, 6, 0))
+    add_device(db_session, "this-year", datetime(2026, 3, 1, 6, 0))
+
+    points = compute_timeseries(db_session, now=NOW, granularity="year", buckets=3)
+
+    assert [p["bucket_start"] for p in points] == [date(2024, 1, 1), date(2025, 1, 1), date(2026, 1, 1)]
+    assert [p["count"] for p in points] == [0, 1, 1]

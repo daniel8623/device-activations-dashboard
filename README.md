@@ -57,7 +57,7 @@ pytest -v
 | ------ | -------------------------------------------------- | ----------------------------------------------------- |
 | `POST` | `/api/activations`                                 | Register a device activation (the ping)               |
 | `GET`  | `/api/stats/summary`                               | Counts for today, this week, this month and this year |
-| `GET`  | `/api/stats/timeseries?granularity=day&buckets=30` | Counts per day, week or month, for the chart          |
+| `GET`  | `/api/stats/timeseries?granularity=day&buckets=30` | Counts per day, week, month or year, for the chart    |
 
 **Register an activation**
 
@@ -119,10 +119,10 @@ Returns `201` with `"is_new": true` for a new device, or `200` with `"is_new": f
 ## Trade-offs and what I would do next
 
 - **Database.** SQLite keeps setup to zero for a reviewer. For production I would switch to PostgreSQL by setting the `DATABASE_URL` environment variable, and add migrations (Alembic) instead of `create_all`.
-- **Scale.** The timeseries runs one indexed `COUNT` query per period (up to 30). That is fast for this size, but with millions of devices I would use a single `GROUP BY` query with `date_trunc ... AT TIME ZONE` in PostgreSQL, or keep a daily summary table updated in the background.
+- **Scale.** The timeseries runs one indexed `COUNT` query per period (30 for the daily view). That is fast for this size, but with millions of devices I would use a single `GROUP BY` query with `date_trunc ... AT TIME ZONE` in PostgreSQL, or keep a daily summary table updated in the background.
 - **Security.** The ping endpoint is open, so anyone could register fake activations. In production, devices would authenticate (for example, a signed token per device), and the dashboard would sit behind a login.
 - **Validation.** Activations with a timestamp in the future are not counted, but they are still stored. I would reject timestamps that are far in the future when the ping arrives.
-- **Frontend.** Auto-refresh every minute, a custom date range, and breakdowns (for example by device model or app version), if the ping includes that data.
+- **Frontend.** A range selector for each view (for example 7, 30 or 90 days), auto-refresh every minute, and breakdowns by device model or app version, if the ping includes that data.
 - **Deployment.** Docker Compose with one container for the API and one for the frontend.
 
 ## Project structure

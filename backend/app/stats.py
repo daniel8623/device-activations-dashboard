@@ -15,13 +15,17 @@ def local_midnight_to_utc(day: date) -> datetime:
     return local_midnight.astimezone(timezone.utc).replace(tzinfo=None)
 
 
+def week_start(day: date) -> date:
+    """The Sunday that starts the week of the given day."""
+    return day - timedelta(days=(day.weekday() + 1) % 7)
+
+
 def period_starts(now_local: datetime) -> dict[str, datetime]:
     """Start of today, this week (from Sunday), this month and this year, in naive UTC."""
     today = now_local.date()
-    days_since_sunday = (today.weekday() + 1) % 7  # Python: Monday=0 ... Sunday=6
     starts = {
         "today": today,
-        "week": today - timedelta(days=days_since_sunday),
+        "week": week_start(today),
         "month": today.replace(day=1),
         "year": today.replace(month=1, day=1),
     }
@@ -43,10 +47,6 @@ def compute_summary(db: Session, now: datetime) -> dict[str, int]:
     starts = period_starts(now_local)
     return {name: count_between(db, start, now_utc) for name, start in starts.items()}
 
-def week_start(day: date) -> date:
-    """The Sunday that starts the week of the given day."""
-    return day - timedelta(days=(day.weekday() + 1) % 7)
-
 
 def add_months(day: date, months: int) -> date:
     """First day of the month, shifted by a number of months (negative goes back)."""
@@ -64,6 +64,9 @@ def bucket_starts(today: date, granularity: str, buckets: int) -> list[date]:
     if granularity == "month":
         current = today.replace(day=1)
         return [add_months(current, -i) for i in range(buckets - 1, -1, -1)]
+    if granularity == "year":
+        current = today.replace(month=1, day=1)
+        return [current.replace(year=current.year - i) for i in range(buckets - 1, -1, -1)]
     raise ValueError(f"Unknown granularity: {granularity}")
 
 

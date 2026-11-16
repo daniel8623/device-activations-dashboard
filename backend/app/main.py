@@ -44,14 +44,16 @@ def register_activation(payload: ActivationIn, response: Response, db: Session =
 
     return ActivationOut(device_id=device.device_id, activated_at=device.activated_at, is_new=True)
 
+
 @app.get("/api/stats/summary", response_model=SummaryOut)
 def get_summary(db: Session = Depends(get_db)):
     counts = compute_summary(db, now=datetime.now(LOCAL_TZ))
     return SummaryOut(**counts, timezone=str(LOCAL_TZ))
 
+
 @app.get("/api/stats/timeseries", response_model=TimeseriesOut)
 def get_timeseries(
-    granularity: Literal["day", "week", "month"] = "day",
+    granularity: Literal["day", "week", "month", "year"] = "day",
     buckets: int = Query(default=30, ge=1, le=366),
     db: Session = Depends(get_db),
 ):

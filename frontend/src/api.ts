@@ -6,7 +6,7 @@ export type Summary = {
   timezone: string;
 };
 
-export type Granularity = "day" | "week" | "month";
+export type Granularity = "day" | "week" | "month" | "year";
 
 export type TimeseriesPoint = {
   bucket_start: string; // "YYYY-MM-DD", start of the period in Israel time

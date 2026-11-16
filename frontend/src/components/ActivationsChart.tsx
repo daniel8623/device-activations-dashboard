@@ -19,9 +19,10 @@ const RANGES: Record<
   day: { buckets: 30, name: "Daily", description: "Last 30 days" },
   week: { buckets: 12, name: "Weekly", description: "Last 12 weeks" },
   month: { buckets: 12, name: "Monthly", description: "Last 12 months" },
+  year: { buckets: 3, name: "Yearly", description: "Last 3 years" },
 };
 
-const GRANULARITIES: Granularity[] = ["day", "week", "month"];
+const GRANULARITIES: Granularity[] = ["day", "week", "month", "year"];
 
 // "2026-11-16" -> a local Date. new Date("2026-11-16") would parse it as UTC midnight,
 // which can show the previous day in timezones behind UTC.
@@ -32,6 +33,9 @@ function parseLocalDate(isoDate: string): Date {
 
 function formatAxisLabel(isoDate: string, granularity: Granularity): string {
   const date = parseLocalDate(isoDate);
+  if (granularity === "year") {
+    return String(date.getFullYear());
+  }
   if (granularity === "month") {
     return date.toLocaleDateString("en-US", {
       month: "short",
